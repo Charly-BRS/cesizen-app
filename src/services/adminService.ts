@@ -1,6 +1,9 @@
 // src/services/adminService.ts
 // Service gérant les appels API réservés aux administrateurs.
 // Toutes ces requêtes nécessitent le rôle ROLE_ADMIN côté serveur.
+//
+// Note : les opérations sur les articles (créer, modifier, supprimer, publier)
+// sont dans articleService.ts car elles partagent les mêmes types et endpoints.
 
 import apiClient from './api';
 
@@ -15,18 +18,7 @@ export interface UtilisateurAdmin {
   createdAt: string;
 }
 
-// Type article pour l'admin
-export interface ArticleAdmin {
-  id: number;
-  titre: string;
-  contenu: string;
-  isPublie: boolean;
-  createdAt: string;
-  auteur: { id: number; prenom: string; nom: string };
-  categorie: { id: number; nom: string; slug: string };
-}
-
-// Type exercice pour l'admin
+// Type exercice pour l'admin (inclut isActive et isPreset)
 export interface ExerciceAdmin {
   id: number;
   nom: string;
@@ -102,26 +94,4 @@ export const creerExercice = async (donnees: Omit<ExerciceAdmin, 'id'>): Promise
 // Supprime un exercice
 export const supprimerExercice = async (id: number): Promise<void> => {
   await apiClient.delete(`/breathing_exercises/${id}`);
-};
-
-// ── Gestion des articles ──────────────────────────────────────
-
-// Récupère tous les articles (publiés et non publiés)
-export const getTousArticles = async (): Promise<ArticleAdmin[]> => {
-  const reponse = await apiClient.get<ReponseCollection<ArticleAdmin>>('/articles');
-  return reponse.data['hydra:member'];
-};
-
-// Publie ou dépublie un article
-export const togglePublieArticle = async (id: number, isPublie: boolean): Promise<void> => {
-  await apiClient.patch(
-    `/articles/${id}`,
-    { isPublie },
-    { headers: { 'Content-Type': 'application/merge-patch+json' } }
-  );
-};
-
-// Supprime un article
-export const supprimerArticle = async (id: number): Promise<void> => {
-  await apiClient.delete(`/articles/${id}`);
 };
