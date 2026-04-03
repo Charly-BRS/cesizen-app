@@ -19,6 +19,7 @@ import RegisterPage from './pages/RegisterPage';
 // Pages privées (nécessitent une connexion)
 import DashboardPage from './pages/DashboardPage';
 import ArticlesPage from './pages/ArticlesPage';
+import ArticleDetailPage from './pages/ArticleDetailPage';
 import ExercisesPage from './pages/ExercisesPage';
 import ExerciseDetailPage from './pages/ExerciseDetailPage';
 import SessionHistoryPage from './pages/SessionHistoryPage';
@@ -63,6 +64,14 @@ function App() {
           element={
             <PrivateRoute>
               <ArticlesPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/articles/:id"
+          element={
+            <PrivateRoute>
+              <ArticleDetailPage />
             </PrivateRoute>
           }
         />
