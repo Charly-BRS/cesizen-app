@@ -69,12 +69,15 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Infos utilisateur + déconnexion */}
-        <div className="flex items-center gap-4">
-          {/* Affiche le prénom de l'utilisateur connecté */}
-          <span className="text-blue-200 text-sm">
+        {/* Infos utilisateur + profil + déconnexion */}
+        <div className="flex items-center gap-3">
+          {/* Lien vers le profil avec le prénom de l'utilisateur */}
+          <Link
+            to="/profil"
+            className="text-blue-200 hover:text-white text-sm transition-colors"
+          >
             Bonjour, <strong className="text-white">{utilisateur?.prenom}</strong>
-          </span>
+          </Link>
 
           <button
             onClick={handleDeconnexion}
