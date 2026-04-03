@@ -20,6 +20,9 @@ interface AuthContextType {
   token: string | null;
   connecter: (utilisateur: Utilisateur, token: string) => void;
   deconnecter: () => void;
+  // Met à jour les infos de l'utilisateur en mémoire et dans localStorage
+  // (utilisé après une modification de profil)
+  mettreAJourUtilisateur: (donnees: Partial<Utilisateur>) => void;
   estConnecte: boolean;
 }
 
@@ -61,11 +64,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('utilisateur');
   };
 
+  // Mise à jour partielle des infos utilisateur (après modification de profil)
+  // Met à jour l'état React ET le localStorage pour persister après rechargement
+  const mettreAJourUtilisateur = (donnees: Partial<Utilisateur>) => {
+    setUtilisateur((prev) => {
+      if (!prev) return prev;
+      const mis_a_jour = { ...prev, ...donnees };
+      localStorage.setItem('utilisateur', JSON.stringify(mis_a_jour));
+      return mis_a_jour;
+    });
+  };
+
   const valeurContexte: AuthContextType = {
     utilisateur,
     token,
     connecter,
     deconnecter,
+    mettreAJourUtilisateur,
     estConnecte: token !== null,
   };
 
