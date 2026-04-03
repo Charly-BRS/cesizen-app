@@ -90,18 +90,20 @@ const ArticleDetailPage: React.FC = () => {
               {article.titre}
             </h1>
 
-            {/* Auteur */}
-            <div className="flex items-center gap-3 mb-8 pb-6 border-b border-gray-100">
-              <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm">
-                {article.auteur.prenom[0]}{article.auteur.nom[0]}
+            {/* Auteur — typeof vérifie que auteur est bien un objet (pas une IRI string) */}
+            {typeof article.auteur === 'object' && article.auteur !== null && (
+              <div className="flex items-center gap-3 mb-8 pb-6 border-b border-gray-100">
+                <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm">
+                  {article.auteur.prenom?.[0] ?? '?'}{article.auteur.nom?.[0] ?? ''}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">
+                    {article.auteur.prenom} {article.auteur.nom}
+                  </p>
+                  <p className="text-xs text-gray-400">Auteur</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-700">
-                  {article.auteur.prenom} {article.auteur.nom}
-                </p>
-                <p className="text-xs text-gray-400">Auteur</p>
-              </div>
-            </div>
+            )}
 
             {/* Contenu — chaque saut de ligne crée un paragraphe */}
             <div className="prose prose-gray max-w-none">
