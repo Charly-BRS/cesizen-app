@@ -89,8 +89,13 @@ export const toggleActifExercice = async (id: number, isActive: boolean): Promis
 };
 
 // Crée un nouvel exercice
+// API Platform exige le Content-Type "application/ld+json" pour les POST
 export const creerExercice = async (donnees: Omit<ExerciceAdmin, 'id'>): Promise<ExerciceAdmin> => {
-  const reponse = await apiClient.post<ExerciceAdmin>('/breathing_exercises', donnees);
+  const reponse = await apiClient.post<ExerciceAdmin>(
+    '/breathing_exercises',
+    donnees,
+    { headers: { 'Content-Type': 'application/ld+json' } }
+  );
   return reponse.data;
 };
 
