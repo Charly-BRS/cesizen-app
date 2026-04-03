@@ -14,5 +14,11 @@ export default defineConfig({
     // Expose le serveur sur tous les réseaux (nécessaire pour Docker)
     host: '0.0.0.0',
     port: 5173,
+    watch: {
+      // Polling obligatoire sur Windows + Docker :
+      // les événements de fichiers natifs ne traversent pas la couche WSL/volume
+      usePolling: true,
+      interval: 500,
+    },
   },
 })

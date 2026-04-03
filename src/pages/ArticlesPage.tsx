@@ -4,7 +4,10 @@
 // et gère les états : chargement, erreur, liste vide, et succès.
 
 import { useEffect, useState } from 'react';
-import { getArticles, Article } from '../services/articleService';
+import { getArticles } from '../services/articleService';
+// "import type" indique à Vite que Article est un type TypeScript pur,
+// pas une valeur JavaScript — évite l'erreur "does not provide an export named"
+import type { Article } from '../services/articleService';
 
 const ArticlesPage: React.FC = () => {
   // Liste des articles récupérés depuis l'API

@@ -8,6 +8,8 @@ import { useAuth } from '../context/AuthContext';
 
 const Navbar: React.FC = () => {
   const { utilisateur, estConnecte, deconnecter } = useAuth();
+  // Vérifie si l'utilisateur connecté a le rôle admin
+  const estAdmin = utilisateur?.roles.includes('ROLE_ADMIN') ?? false;
   const navigate = useNavigate();
 
   // Déconnecte l'utilisateur et redirige vers /login
@@ -56,6 +58,15 @@ const Navbar: React.FC = () => {
           >
             Historique
           </Link>
+          {/* Lien Admin visible uniquement pour les administrateurs */}
+          {estAdmin && (
+            <Link
+              to="/admin"
+              className="bg-yellow-400 text-yellow-900 hover:bg-yellow-300 px-3 py-1 rounded-lg text-sm font-semibold transition-colors"
+            >
+              ⚙️ Admin
+            </Link>
+          )}
         </div>
 
         {/* Infos utilisateur + déconnexion */}
