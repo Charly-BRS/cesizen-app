@@ -2,6 +2,7 @@
 // Composant racine de l'application CESIZen.
 // Définit toutes les routes de l'application et protège
 // les pages privées avec le composant PrivateRoute.
+// Les pages admin sont protégées par AdminRoute (ROLE_ADMIN requis).
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
@@ -9,6 +10,7 @@ import { useAuth } from './context/AuthContext';
 // Composants de mise en page
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
 
 // Pages publiques (accessibles sans connexion)
 import LoginPage from './pages/LoginPage';
@@ -20,6 +22,12 @@ import ArticlesPage from './pages/ArticlesPage';
 import ExercisesPage from './pages/ExercisesPage';
 import ExerciseDetailPage from './pages/ExerciseDetailPage';
 import SessionHistoryPage from './pages/SessionHistoryPage';
+
+// Pages admin (nécessitent ROLE_ADMIN)
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminExercisesPage from './pages/admin/AdminExercisesPage';
+import AdminArticlesPage from './pages/admin/AdminArticlesPage';
 
 // Redirige vers /dashboard si connecté, sinon vers /login
 const RootRedirect: React.FC = () => {
@@ -71,6 +79,40 @@ function App() {
         <Route
           path="/sessions"
           element={<PrivateRoute><SessionHistoryPage /></PrivateRoute>}
+        />
+
+        {/* ── Pages admin (ROLE_ADMIN requis) ─────────────── */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboardPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <AdminUsersPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/exercises"
+          element={
+            <AdminRoute>
+              <AdminExercisesPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/articles"
+          element={
+            <AdminRoute>
+              <AdminArticlesPage />
+            </AdminRoute>
+          }
         />
 
         {/* Route 404 : redirige vers l'accueil si l'URL n'existe pas */}
