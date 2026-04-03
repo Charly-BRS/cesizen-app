@@ -10,6 +10,8 @@ interface Utilisateur {
   id: number;
   email: string;
   roles: string[];
+  prenom: string;
+  nom: string;
 }
 
 // Type du contexte d'authentification
@@ -32,28 +34,31 @@ interface AuthProviderProps {
 // Fournisseur du contexte d'authentification
 // Enveloppe l'application entière pour partager l'état d'auth
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // État de l'utilisateur connecté (null si non connecté)
-  const [utilisateur, setUtilisateur] = useState<Utilisateur | null>(null);
+  // Initialise l'utilisateur depuis localStorage (survit aux rechargements)
+  const [utilisateur, setUtilisateur] = useState<Utilisateur | null>(() => {
+    const donneesSauvegardees = localStorage.getItem('utilisateur');
+    return donneesSauvegardees ? JSON.parse(donneesSauvegardees) : null;
+  });
 
-  // État du token JWT (null si non connecté)
+  // Initialise le token depuis localStorage (survit aux rechargements)
   const [token, setToken] = useState<string | null>(
-    // Initialise depuis localStorage si un token existe déjà
     localStorage.getItem('jwt_token')
   );
 
-  // Fonction de connexion : sauvegarde l'utilisateur et le token
+  // Connexion : sauvegarde utilisateur + token en mémoire et dans localStorage
   const connecter = (nouvelUtilisateur: Utilisateur, nouveauToken: string) => {
     setUtilisateur(nouvelUtilisateur);
     setToken(nouveauToken);
-    // Persiste le token pour survivre aux rechargements de page
     localStorage.setItem('jwt_token', nouveauToken);
+    localStorage.setItem('utilisateur', JSON.stringify(nouvelUtilisateur));
   };
 
-  // Fonction de déconnexion : efface l'état et le localStorage
+  // Déconnexion : efface tout l'état et le localStorage
   const deconnecter = () => {
     setUtilisateur(null);
     setToken(null);
     localStorage.removeItem('jwt_token');
+    localStorage.removeItem('utilisateur');
   };
 
   const valeurContexte: AuthContextType = {
