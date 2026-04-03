@@ -124,10 +124,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
       {/* Aperçu du contenu */}
       <p className="text-gray-600 text-sm leading-relaxed">{apercu}</p>
 
-      {/* Auteur */}
+      {/* Auteur — typeof vérifie que auteur est bien un objet (pas une IRI string) */}
       <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
         <span className="text-sm text-gray-500">
-          ✍️ {article.auteur.prenom} {article.auteur.nom}
+          ✍️ {typeof article.auteur === 'object'
+            ? `${article.auteur.prenom} ${article.auteur.nom}`
+            : 'Auteur inconnu'}
         </span>
         <button
           onClick={() => navigate(`/articles/${article.id}`)}
