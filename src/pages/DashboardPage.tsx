@@ -40,16 +40,19 @@ const DashboardPage: React.FC = () => {
             </p>
           </Link>
 
-          {/* Carte Activités — à venir en Phase 4 */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 opacity-60 cursor-not-allowed">
-            <div className="text-4xl mb-4">🏃</div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Activités
+          {/* Carte Exercices de respiration */}
+          <Link
+            to="/exercises"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow group"
+          >
+            <div className="text-4xl mb-4">🌬️</div>
+            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+              Exercices de respiration
             </h2>
             <p className="text-gray-500 text-sm mt-1">
-              Exercices de relaxation et de pleine conscience. <em>(Disponible prochainement)</em>
+              Cohérence cardiaque, respiration 4-7-8, box breathing... Guidé et animé.
             </p>
-          </div>
+          </Link>
 
           {/* Carte Diagnostic stress — à venir en Phase 4 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 opacity-60 cursor-not-allowed">
@@ -62,16 +65,19 @@ const DashboardPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Carte Profil */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 opacity-60 cursor-not-allowed">
-            <div className="text-4xl mb-4">👤</div>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Mon profil
+          {/* Carte Historique sessions */}
+          <Link
+            to="/sessions"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow group"
+          >
+            <div className="text-4xl mb-4">📊</div>
+            <h2 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+              Mon historique
             </h2>
             <p className="text-gray-500 text-sm mt-1">
-              Gère tes informations personnelles. <em>(Disponible prochainement)</em>
+              Consulte tes sessions passées et suis ta progression.
             </p>
-          </div>
+          </Link>
 
         </div>
       </div>
