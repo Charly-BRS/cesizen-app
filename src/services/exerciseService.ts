@@ -47,11 +47,13 @@ export const getExercice = async (id: number): Promise<BreathingExercise> => {
 
 // Démarre une nouvelle session d'exercice
 // Retourne la session créée avec son id (nécessaire pour la mettre à jour ensuite)
+// API Platform exige le Content-Type "application/ld+json" pour les POST
 export const demarrerSession = async (exerciceId: number): Promise<UserSession> => {
-  const reponse = await apiClient.post<UserSession>('/user_sessions', {
-    // API Platform attend l'IRI (chemin) de la ressource liée
-    breathingExercise: `/api/breathing_exercises/${exerciceId}`,
-  });
+  const reponse = await apiClient.post<UserSession>(
+    '/user_sessions',
+    { breathingExercise: `/api/breathing_exercises/${exerciceId}` },
+    { headers: { 'Content-Type': 'application/ld+json' } }
+  );
   return reponse.data;
 };
 
