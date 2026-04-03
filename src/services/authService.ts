@@ -52,3 +52,29 @@ export const getMonProfil = async (id: number) => {
   const reponse = await apiClient.get(`/users/${id}`);
   return reponse.data;
 };
+
+// Met à jour le prénom et le nom de l'utilisateur connecté
+export const modifierProfil = async (
+  id: number,
+  donnees: { prenom: string; nom: string }
+) => {
+  const reponse = await apiClient.patch(
+    `/users/${id}`,
+    donnees,
+    { headers: { 'Content-Type': 'application/merge-patch+json' } }
+  );
+  return reponse.data;
+};
+
+// Change le mot de passe de l'utilisateur connecté
+// Vérifie l'ancien mot de passe côté serveur avant de le modifier
+export const changerMotDePasse = async (
+  ancienMotDePasse: string,
+  nouveauMotDePasse: string
+): Promise<{ message: string }> => {
+  const reponse = await apiClient.post<{ message: string }>(
+    '/auth/change-password',
+    { ancienMotDePasse, nouveauMotDePasse }
+  );
+  return reponse.data;
+};
