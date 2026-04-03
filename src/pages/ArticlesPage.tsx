@@ -4,6 +4,7 @@
 // et gère les états : chargement, erreur, liste vide, et succès.
 
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getArticles } from '../services/articleService';
 // "import type" indique à Vite que Article est un type TypeScript pur,
 // pas une valeur JavaScript — évite l'erreur "does not provide an export named"
@@ -75,7 +76,8 @@ const ArticlesPage: React.FC = () => {
         {/* État : liste des articles */}
         {!chargement && !erreur && articles.length > 0 && (
           <div className="grid grid-cols-1 gap-6">
-            {articles.map((article) => (
+            {/* Filtre uniquement les articles publiés pour les utilisateurs */}
+            {articles.filter((a) => a.isPublie).map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}
           </div>
@@ -92,6 +94,7 @@ interface ArticleCardProps {
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
+  const navigate = useNavigate();
   // Formate la date au format français : "3 avril 2026"
   const dateFormatee = new Date(article.createdAt).toLocaleDateString('fr-FR', {
     day: 'numeric',
@@ -126,7 +129,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
         <span className="text-sm text-gray-500">
           ✍️ {article.auteur.prenom} {article.auteur.nom}
         </span>
-        <button className="text-blue-600 text-sm font-medium hover:underline">
+        <button
+          onClick={() => navigate(`/articles/${article.id}`)}
+          className="text-blue-600 text-sm font-medium hover:underline"
+        >
           Lire la suite →
         </button>
       </div>
