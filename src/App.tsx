@@ -17,6 +17,9 @@ import RegisterPage from './pages/RegisterPage';
 // Pages privées (nécessitent une connexion)
 import DashboardPage from './pages/DashboardPage';
 import ArticlesPage from './pages/ArticlesPage';
+import ExercisesPage from './pages/ExercisesPage';
+import ExerciseDetailPage from './pages/ExerciseDetailPage';
+import SessionHistoryPage from './pages/SessionHistoryPage';
 
 // Redirige vers /dashboard si connecté, sinon vers /login
 const RootRedirect: React.FC = () => {
@@ -54,6 +57,20 @@ function App() {
               <ArticlesPage />
             </PrivateRoute>
           }
+        />
+
+        {/* ── Exercices de respiration ─────────────────────── */}
+        <Route
+          path="/exercises"
+          element={<PrivateRoute><ExercisesPage /></PrivateRoute>}
+        />
+        <Route
+          path="/exercises/:id"
+          element={<PrivateRoute><ExerciseDetailPage /></PrivateRoute>}
+        />
+        <Route
+          path="/sessions"
+          element={<PrivateRoute><SessionHistoryPage /></PrivateRoute>}
         />
 
         {/* Route 404 : redirige vers l'accueil si l'URL n'existe pas */}

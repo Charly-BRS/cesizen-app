@@ -44,6 +44,18 @@ const Navbar: React.FC = () => {
           >
             Articles
           </Link>
+          <Link
+            to="/exercises"
+            className="hover:text-blue-200 transition-colors font-medium"
+          >
+            Exercices
+          </Link>
+          <Link
+            to="/sessions"
+            className="hover:text-blue-200 transition-colors font-medium"
+          >
+            Historique
+          </Link>
         </div>
 
         {/* Infos utilisateur + déconnexion */}
