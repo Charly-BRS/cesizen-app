@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Récupérer le code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Installation de Node.js avec cache npm
       - name: Installer Node.js 22
