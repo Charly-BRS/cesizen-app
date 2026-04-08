@@ -43,7 +43,7 @@ jobs:
 
       # Sauvegarder le dossier dist/ pour le job de déploiement
       - name: Sauvegarder l'artefact de build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-build
           path: dist
