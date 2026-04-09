@@ -3,7 +3,7 @@
 // Affiche un formulaire email + mot de passe, appelle l'API,
 // stocke le token JWT et redirige vers le dashboard si succès.
 
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { login } from '../services/authService';
@@ -76,7 +76,7 @@ const LoginPage: React.FC = () => {
 
         {/* En-tête */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">🧘 CESIZen</h1>
+          <h1 className="text-3xl font-bold text-green-700">🧘 CESIZen</h1>
           <p className="text-gray-500 mt-2">Connecte-toi à ton espace bien-être</p>
         </div>
 
@@ -102,7 +102,7 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ton@email.fr"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition"
             />
           </div>
 
@@ -118,15 +118,22 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setMotDePasse(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition"
             />
+          </div>
+
+          {/* Mot de passe oublié */}
+          <div className="flex justify-end">
+            <Link to="/forgot-password" className="text-xs text-slate-400 hover:text-green-700 transition-colors">
+              Mot de passe oublié ?
+            </Link>
           </div>
 
           {/* Bouton de connexion */}
           <button
             type="submit"
             disabled={chargement}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-2.5 rounded-lg transition-colors"
+            className="bg-green-700 hover:bg-green-800 disabled:bg-green-300 text-white font-semibold py-2.5 rounded-lg transition-colors"
           >
             {chargement ? 'Connexion en cours...' : 'Se connecter'}
           </button>
@@ -136,7 +143,7 @@ const LoginPage: React.FC = () => {
         {/* Lien vers l'inscription */}
         <p className="text-center text-sm text-gray-500 mt-6">
           Pas encore de compte ?{' '}
-          <Link to="/register" className="text-blue-600 hover:underline font-medium">
+          <Link to="/register" className="text-green-700 hover:underline font-medium">
             Créer un compte
           </Link>
         </p>

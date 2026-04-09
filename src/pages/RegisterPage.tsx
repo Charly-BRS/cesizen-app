@@ -3,7 +3,7 @@
 // Affiche un formulaire de création de compte, appelle l'API,
 // puis redirige vers la page de connexion si l'inscription réussit.
 
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../services/authService';
 
@@ -76,7 +76,7 @@ const RegisterPage: React.FC = () => {
 
         {/* En-tête */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">🧘 CESIZen</h1>
+          <h1 className="text-3xl font-bold text-green-700">🧘 CESIZen</h1>
           <p className="text-gray-500 mt-2">Crée ton espace bien-être</p>
         </div>
 
@@ -110,7 +110,7 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setPrenom(e.target.value)}
                 placeholder="Jean"
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition"
               />
             </div>
             <div className="flex-1">
@@ -124,7 +124,7 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => setNom(e.target.value)}
                 placeholder="Dupont"
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition"
               />
             </div>
           </div>
@@ -141,7 +141,7 @@ const RegisterPage: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ton@email.fr"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition"
             />
           </div>
 
@@ -157,7 +157,7 @@ const RegisterPage: React.FC = () => {
               onChange={(e) => setMotDePasse(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition"
             />
           </div>
 
@@ -173,7 +173,7 @@ const RegisterPage: React.FC = () => {
               onChange={(e) => setConfirmation(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition"
             />
           </div>
 
@@ -181,7 +181,7 @@ const RegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={chargement}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-2.5 rounded-lg transition-colors mt-1"
+            className="bg-green-700 hover:bg-green-800 disabled:bg-green-300 text-white font-semibold py-2.5 rounded-lg transition-colors mt-1"
           >
             {chargement ? 'Création en cours...' : 'Créer mon compte'}
           </button>
@@ -191,7 +191,7 @@ const RegisterPage: React.FC = () => {
         {/* Lien vers la connexion */}
         <p className="text-center text-sm text-gray-500 mt-6">
           Déjà un compte ?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline font-medium">
+          <Link to="/login" className="text-green-700 hover:underline font-medium">
             Se connecter
           </Link>
         </p>

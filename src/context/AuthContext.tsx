@@ -3,7 +3,7 @@
 // Partage l'état de l'utilisateur connecté et le token JWT
 // à tous les composants enfants de l'application.
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, type ReactNode } from 'react';
 
 // Type représentant un utilisateur authentifié
 interface Utilisateur {

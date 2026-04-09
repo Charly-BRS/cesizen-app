@@ -1,13 +1,12 @@
 // src/services/adminService.ts
 // Service gérant les appels API réservés aux administrateurs.
 // Toutes ces requêtes nécessitent le rôle ROLE_ADMIN côté serveur.
-//
-// Note : les opérations sur les articles (créer, modifier, supprimer, publier)
-// sont dans articleService.ts car elles partagent les mêmes types et endpoints.
 
 import apiClient from './api';
 
-// Type utilisateur complet pour l'admin (inclut isActif et roles)
+// ── Types ────────────────────────────────────────────────────────────────────
+
+// Utilisateur complet pour l'administration
 export interface UtilisateurAdmin {
   id: number;
   email: string;
@@ -18,7 +17,7 @@ export interface UtilisateurAdmin {
   createdAt: string;
 }
 
-// Type exercice pour l'admin (inclut isActive et isPreset)
+// Exercice complet pour l'administration
 export interface ExerciceAdmin {
   id: number;
   nom: string;
@@ -32,20 +31,22 @@ export interface ExerciceAdmin {
   isActive: boolean;
 }
 
+// Format de réponse paginée d'API Platform
 interface ReponseCollection<T> {
   'hydra:member': T[];
   'hydra:totalItems': number;
 }
 
-// ── Gestion des utilisateurs ──────────────────────────────────
+// ── Gestion des utilisateurs ─────────────────────────────────────────────────
 
-// Récupère la liste complète des utilisateurs
+// Récupère tous les utilisateurs (ROLE_ADMIN requis)
 export const getTousUtilisateurs = async (): Promise<UtilisateurAdmin[]> => {
   const reponse = await apiClient.get<ReponseCollection<UtilisateurAdmin>>('/users');
   return reponse.data['hydra:member'];
 };
 
 // Active ou désactive un compte utilisateur
+// Utilise PATCH /api/users/{id} avec isActif (champ dans user:write)
 export const toggleActifUtilisateur = async (id: number, isActif: boolean): Promise<void> => {
   await apiClient.patch(
     `/users/${id}`,
@@ -54,18 +55,27 @@ export const toggleActifUtilisateur = async (id: number, isActif: boolean): Prom
   );
 };
 
-// Promeut un utilisateur en admin (ou retire le rôle admin)
-export const toggleRoleAdmin = async (id: number, estAdmin: boolean): Promise<void> => {
-  await apiClient.patch(
-    `/users/${id}`,
-    { roles: estAdmin ? ['ROLE_ADMIN'] : [] },
-    { headers: { 'Content-Type': 'application/merge-patch+json' } }
-  );
+// Définit les rôles d'un utilisateur via l'endpoint dédié /api/auth/set-role
+// Pourquoi pas PATCH /users/{id} ? Les rôles ne sont PAS dans le groupe user:write
+// (pour empêcher l'auto-promotion). Seul cet endpoint admin peut changer les rôles.
+//
+// roles : tableau des rôles à attribuer, ex: [] | ['ROLE_REDACTEUR'] | ['ROLE_ADMIN']
+export const definirRolesUtilisateur = async (id: number, roles: string[]): Promise<void> => {
+  await apiClient.post('/auth/set-role', { userId: id, roles });
 };
 
-// ── Gestion des exercices ─────────────────────────────────────
+// Réinitialise le mot de passe d'un utilisateur (admin uniquement)
+// Cas d'usage : utilisateur bloqué, compte compromis, etc.
+export const resetMotDePasseAdmin = async (
+  userId: number,
+  nouveauMotDePasse: string
+): Promise<void> => {
+  await apiClient.post('/auth/reset-password', { userId, nouveauMotDePasse });
+};
 
-// Récupère tous les exercices (actifs et inactifs)
+// ── Gestion des exercices ─────────────────────────────────────────────────────
+
+// Récupère tous les exercices y compris les inactifs (admin voit tout)
 export const getTousExercices = async (): Promise<ExerciceAdmin[]> => {
   const reponse = await apiClient.get<ReponseCollection<ExerciceAdmin>>('/breathing_exercises');
   return reponse.data['hydra:member'];
@@ -80,8 +90,7 @@ export const toggleActifExercice = async (id: number, isActive: boolean): Promis
   );
 };
 
-// Crée un nouvel exercice
-// API Platform exige le Content-Type "application/ld+json" pour les POST
+// Crée un nouvel exercice (API Platform exige application/ld+json pour POST)
 export const creerExercice = async (donnees: Omit<ExerciceAdmin, 'id'>): Promise<ExerciceAdmin> => {
   const reponse = await apiClient.post<ExerciceAdmin>(
     '/breathing_exercises',
@@ -91,7 +100,7 @@ export const creerExercice = async (donnees: Omit<ExerciceAdmin, 'id'>): Promise
   return reponse.data;
 };
 
-// Supprime un exercice
+// Supprime définitivement un exercice
 export const supprimerExercice = async (id: number): Promise<void> => {
   await apiClient.delete(`/breathing_exercises/${id}`);
 };
