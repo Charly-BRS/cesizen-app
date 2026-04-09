@@ -47,12 +47,6 @@ export const register = async (donnees: DonneesInscription): Promise<ReponseRegi
   return reponse.data;
 };
 
-// Récupère le profil de l'utilisateur connecté depuis /api/users/{id}
-export const getMonProfil = async (id: number) => {
-  const reponse = await apiClient.get(`/users/${id}`);
-  return reponse.data;
-};
-
 // Met à jour le prénom et le nom de l'utilisateur connecté
 export const modifierProfil = async (
   id: number,

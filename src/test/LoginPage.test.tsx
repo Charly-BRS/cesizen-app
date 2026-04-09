@@ -28,7 +28,6 @@ import * as authService from '../services/authService';
 vi.mock('../services/authService', () => ({
   login: vi.fn(),
   register: vi.fn(),
-  getMonProfil: vi.fn(),
   modifierProfil: vi.fn(),
   changerMotDePasse: vi.fn(),
 }));
