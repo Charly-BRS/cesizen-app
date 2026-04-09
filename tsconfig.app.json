@@ -24,5 +24,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Les fichiers de tests sont gérés par Vitest (pas par le compilateur TypeScript principal)
+  // Cela évite des erreurs de type liées aux librairies de test dans le build de production
+  "exclude": ["src/test"]
 }
