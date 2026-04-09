@@ -3,11 +3,13 @@
 // Permet de modifier son prénom/nom et de changer son mot de passe.
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { modifierProfil, changerMotDePasse } from '../services/authService';
+import { modifierProfil, changerMotDePasse, desactiverCompte } from '../services/authService';
 
 const ProfilPage: React.FC = () => {
-  const { utilisateur, mettreAJourUtilisateur } = useAuth();
+  const navigate = useNavigate();
+  const { utilisateur, mettreAJourUtilisateur, deconnecter } = useAuth();
 
   // ── Section infos personnelles ─────────────────────────────
   const [prenom, setPrenom]           = useState(utilisateur?.prenom ?? '');
@@ -43,6 +45,27 @@ const ProfilPage: React.FC = () => {
   const [enregistrementMdp, setEnregistrementMdp] = useState(false);
   const [succesMdp, setSuccesMdp]         = useState('');
   const [erreurMdp, setErreurMdp]         = useState('');
+
+  // ── Section désactivation du compte (RGPD) ─────────────────
+  // Affiche une modale de confirmation avant d'envoyer la demande
+  const [afficherConfirmation, setAfficherConfirmation] = useState(false);
+  const [desactivationEnCours, setDesactivationEnCours]   = useState(false);
+  const [erreurDesactivation, setErreurDesactivation]     = useState('');
+
+  const handleDesactiverCompte = async () => {
+    setDesactivationEnCours(true);
+    setErreurDesactivation('');
+
+    try {
+      await desactiverCompte();
+      // Désactivation réussie : déconnecte l'utilisateur et le renvoie à l'accueil
+      deconnecter();
+      navigate('/');
+    } catch {
+      setErreurDesactivation('Impossible de désactiver le compte. Réessaie plus tard.');
+      setDesactivationEnCours(false);
+    }
+  };
 
   const handleChangerMotDePasse = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,6 +261,62 @@ const ProfilPage: React.FC = () => {
             </button>
 
           </form>
+        </div>
+
+        {/* ── Carte : Zone sensible — désactivation du compte ───── */}
+        <div className="bg-white rounded-2xl shadow-sm border border-red-100 p-6">
+          <h2 className="text-lg font-semibold text-red-700 mb-1">
+            Désactiver mon compte
+          </h2>
+          <p className="text-sm text-gray-500 mb-5">
+            Ton compte sera désactivé immédiatement. Tes données seront conservées
+            30 jours puis supprimées définitivement, conformément au RGPD.
+          </p>
+
+          {erreurDesactivation && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-4">
+              {erreurDesactivation}
+            </div>
+          )}
+
+          {/* Bouton d'ouverture de la modale de confirmation */}
+          {!afficherConfirmation ? (
+            <button
+              type="button"
+              onClick={() => setAfficherConfirmation(true)}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm"
+            >
+              Désactiver mon compte
+            </button>
+          ) : (
+            /* Modale de confirmation inline */
+            <div className="bg-red-50 border border-red-200 rounded-xl p-5 space-y-4">
+              <p className="text-sm font-semibold text-red-800">
+                Confirmes-tu la désactivation de ton compte ?
+              </p>
+              <p className="text-xs text-red-600">
+                Cette action est irréversible. Tu seras déconnecté(e) immédiatement
+                et ton compte sera supprimé dans 30 jours.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleDesactiverCompte}
+                  disabled={desactivationEnCours}
+                  className="bg-red-700 hover:bg-red-800 disabled:opacity-50 text-white font-semibold px-5 py-2 rounded-lg transition-colors text-sm"
+                >
+                  {desactivationEnCours ? 'Désactivation...' : 'Oui, désactiver'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAfficherConfirmation(false)}
+                  className="bg-white hover:bg-gray-50 text-gray-700 font-semibold px-5 py-2 rounded-lg border border-gray-200 transition-colors text-sm"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

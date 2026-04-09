@@ -39,9 +39,20 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expiré ou invalide : supprime le token et redirige vers login
-      localStorage.removeItem('jwt_token');
-      window.location.href = '/login';
+      // Ne pas rediriger si c'est un appel d'authentification (login, forgot-password,
+      // reset-with-token) : dans ce cas le 401 est une erreur d'identifiants normale
+      // que le composant doit gérer lui-même (afficher un message d'erreur).
+      const urlAppel = error.config?.url ?? '';
+      const estUnAppelAuth = urlAppel.includes('/auth/login')
+        || urlAppel.includes('/auth/forgot-password')
+        || urlAppel.includes('/auth/reset-with-token');
+
+      if (!estUnAppelAuth) {
+        // Token expiré ou invalide sur une route protégée : déconnexion forcée
+        localStorage.removeItem('jwt_token');
+        localStorage.removeItem('utilisateur');
+        window.location.href = '/login';
+      }
     }
 
     return Promise.reject(error);

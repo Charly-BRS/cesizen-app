@@ -78,3 +78,13 @@ export const changerMotDePasse = async (
   );
   return reponse.data;
 };
+
+// Désactive le compte de l'utilisateur connecté (RGPD).
+// Le compte est immédiatement désactivé (plus de connexion possible).
+// Après 30 jours, les données sont supprimées définitivement.
+export const desactiverCompte = async (): Promise<{ message: string; supprimeLe: string }> => {
+  const reponse = await apiClient.post<{ message: string; supprimeLe: string }>(
+    '/auth/desactiver-compte'
+  );
+  return reponse.data;
+};

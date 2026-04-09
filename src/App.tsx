@@ -12,6 +12,9 @@ import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
+// Page d'accueil publique
+import AccueilPage from './pages/AccueilPage';
+
 // Pages publiques (accessibles sans connexion)
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -33,10 +36,10 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminExercisesPage from './pages/admin/AdminExercisesPage';
 import AdminArticlesPage from './pages/admin/AdminArticlesPage';
 
-// Redirige vers /dashboard si connecté, sinon vers /login
+// Redirige vers /dashboard si connecté, sinon affiche la page d'accueil publique
 const RootRedirect: React.FC = () => {
   const { estConnecte } = useAuth();
-  return estConnecte ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+  return estConnecte ? <Navigate to="/dashboard" replace /> : <AccueilPage />;
 };
 
 function App() {
