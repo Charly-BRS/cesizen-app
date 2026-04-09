@@ -5,6 +5,9 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+// Clé de la fonctionnalité qui nécessite une connexion
+const ROUTE_HISTORIQUE = '/sessions';
+
 // ── Définition des cartes fonctionnalités ─────────────────────────────────────
 const FONCTIONNALITES = [
   {
@@ -60,7 +63,7 @@ const CONSEILS_DU_JOUR = [
 ];
 
 const DashboardPage: React.FC = () => {
-  const { utilisateur } = useAuth();
+  const { utilisateur, estConnecte } = useAuth();
 
   // Salutation selon l'heure
   const heure = new Date().getHours();
@@ -91,20 +94,32 @@ const DashboardPage: React.FC = () => {
                 🌿 Espace bien-être CESIZen
               </p>
               <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight">
-                {salutation}, {utilisateur?.prenom} 👋
+                {estConnecte ? `${salutation}, ${utilisateur?.prenom} 👋` : 'Bienvenue sur CESIZen 🌿'}
               </h1>
               <p className="text-emerald-100 text-lg mt-3 max-w-md">
-                Comment vas-tu aujourd'hui ? Commence par une respiration pour te recentrer.
+                {estConnecte
+                  ? "Comment vas-tu aujourd'hui ? Commence par une respiration pour te recentrer."
+                  : 'Explore les exercices de respiration et les ressources bien-être. Connecte-toi pour accéder à tout.'}
               </p>
 
               {/* CTA principal */}
-              <Link
-                to="/exercises"
-                className="mt-6 inline-flex items-center gap-2 bg-white text-emerald-700 font-bold px-6 py-3 rounded-xl hover:bg-emerald-50 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-              >
-                🌬️ Lancer un exercice
-                <span className="text-emerald-400">→</span>
-              </Link>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  to="/exercises"
+                  className="inline-flex items-center gap-2 bg-white text-emerald-700 font-bold px-6 py-3 rounded-xl hover:bg-emerald-50 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                >
+                  🌬️ Lancer un exercice
+                  <span className="text-emerald-400">→</span>
+                </Link>
+                {!estConnecte && (
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200"
+                  >
+                    Se connecter
+                  </Link>
+                )}
+              </div>
             </div>
 
             {/* Conseil du jour — visible sur desktop */}
@@ -148,48 +163,66 @@ const DashboardPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 stagger">
-          {FONCTIONNALITES.map((f) => (
-            <Link
-              key={f.vers}
-              to={f.vers}
-              className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col animate-fade-in-up"
-            >
-              {/* Barre de couleur en haut */}
-              <div className={`h-1.5 w-full bg-gradient-to-r ${f.gradient}`} />
+          {FONCTIONNALITES.map((f) => {
+            // La carte historique est verrouillée pour les visiteurs non connectés
+            const estVerrouille = !estConnecte && f.vers === ROUTE_HISTORIQUE;
+            // Les visiteurs sont redirigés vers /login pour les cartes verrouillées
+            const destination = estVerrouille ? '/login' : f.vers;
 
-              <div className="p-6 flex flex-col gap-4 flex-1">
+            return (
+              <Link
+                key={f.vers}
+                to={destination}
+                className={`group bg-white rounded-2xl border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col animate-fade-in-up ${
+                  estVerrouille ? 'border-slate-200 opacity-80' : 'border-slate-100'
+                }`}
+              >
+                {/* Barre de couleur en haut */}
+                <div className={`h-1.5 w-full bg-gradient-to-r ${f.gradient}`} />
 
-                {/* En-tête : emoji + tag */}
-                <div className="flex items-start justify-between">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.gradient} flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform duration-300`}>
-                    {f.emoji}
+                <div className="p-6 flex flex-col gap-4 flex-1">
+
+                  {/* En-tête : emoji + tag (ou badge "Connexion requise") */}
+                  <div className="flex items-start justify-between">
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.gradient} flex items-center justify-center text-2xl shadow-sm group-hover:scale-110 transition-transform duration-300 ${estVerrouille ? 'grayscale' : ''}`}>
+                      {estVerrouille ? '🔒' : f.emoji}
+                    </div>
+                    {estVerrouille ? (
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">
+                        Connexion requise
+                      </span>
+                    ) : (
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${f.tagClasses}`}>
+                        {f.tag}
+                      </span>
+                    )}
                   </div>
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${f.tagClasses}`}>
-                    {f.tag}
-                  </span>
-                </div>
 
-                {/* Texte */}
-                <div className="flex-1">
-                  <h3 className="text-base font-bold text-slate-800 mb-2 group-hover:text-slate-900">
-                    {f.titre}
-                  </h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">
-                    {f.description}
-                  </p>
-                </div>
+                  {/* Texte */}
+                  <div className="flex-1">
+                    <h3 className="text-base font-bold text-slate-800 mb-2 group-hover:text-slate-900">
+                      {f.titre}
+                    </h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">
+                      {estVerrouille
+                        ? 'Connecte-toi pour consulter ton historique de sessions et suivre ta progression.'
+                        : f.description}
+                    </p>
+                  </div>
 
-                {/* Stat + CTA */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <p className="text-xs text-slate-400">{f.stat}</p>
-                  <span className={`text-xs font-bold text-white ${f.btnClasses} px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1`}>
-                    Accéder <span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
-                  </span>
-                </div>
+                  {/* Stat + CTA */}
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <p className="text-xs text-slate-400">{estVerrouille ? '🔑 Accès réservé aux membres' : f.stat}</p>
+                    <span className={`text-xs font-bold text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${estVerrouille ? 'bg-slate-400 hover:bg-slate-500' : f.btnClasses}`}>
+                      {estVerrouille ? 'Se connecter' : 'Accéder'}{' '}
+                      <span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
+                    </span>
+                  </div>
 
-              </div>
-            </Link>
-          ))}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
 

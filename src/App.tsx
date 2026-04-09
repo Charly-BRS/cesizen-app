@@ -5,7 +5,6 @@
 // Les pages admin sont protégées par AdminRoute (ROLE_ADMIN requis).
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
 
 // Composants de mise en page
 import Navbar from './components/Navbar';
@@ -36,11 +35,10 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminExercisesPage from './pages/admin/AdminExercisesPage';
 import AdminArticlesPage from './pages/admin/AdminArticlesPage';
 
-// Redirige vers /dashboard si connecté, sinon affiche la page d'accueil publique
-const RootRedirect: React.FC = () => {
-  const { estConnecte } = useAuth();
-  return estConnecte ? <Navigate to="/dashboard" replace /> : <AccueilPage />;
-};
+// Redirige toujours vers /dashboard (connecté ou non)
+// Le dashboard est public — l'accès à certaines fonctionnalités (historique, etc.)
+// est contrôlé dans la page elle-même selon l'état de connexion.
+const RootRedirect: React.FC = () => <Navigate to="/dashboard" replace />;
 
 function App() {
   return (
@@ -58,15 +56,10 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+        {/* ── Dashboard public (accessible sans connexion) ── */}
+        <Route path="/dashboard" element={<DashboardPage />} />
+
         {/* ── Pages privées (connexion requise) ───────────── */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <DashboardPage />
-            </PrivateRoute>
-          }
-        />
         <Route
           path="/profil"
           element={
