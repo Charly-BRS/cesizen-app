@@ -52,8 +52,37 @@ const AdminExercisesPage: React.FC = () => {
     if (!confirm(`Supprimer "${exercice.nom}" ?`)) return;
     try {
       await supprimerExercice(exercice.id);
+      // Suppression réelle → on retire l'exercice de la liste
       setExercices((prev) => prev.filter((e) => e.id !== exercice.id));
-    } catch { alert('Erreur lors de la suppression.'); }
+    } catch (err: unknown) {
+      // L'API retourne 422 quand l'exercice a des sessions liées.
+      // Dans ce cas, il a été désactivé automatiquement côté serveur.
+      // On récupère le message de l'API pour l'afficher à l'admin.
+      let messageErreur = 'Erreur lors de la suppression.';
+
+      if (
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        err.response &&
+        typeof err.response === 'object' &&
+        'data' in err.response
+      ) {
+        const data = (err.response as { data?: { 'hydra:description'?: string; detail?: string } }).data;
+        const messageApi = data?.['hydra:description'] ?? data?.detail;
+        if (messageApi) messageErreur = messageApi;
+
+        // Si c'est un 422, l'exercice a été désactivé par l'API → on met à jour l'état local
+        const status = (err.response as { status?: number }).status;
+        if (status === 422) {
+          setExercices((prev) =>
+            prev.map((e) => e.id === exercice.id ? { ...e, isActive: false } : e)
+          );
+        }
+      }
+
+      alert(messageErreur);
+    }
   };
 
   const handleCreer = async (e: React.FormEvent) => {
