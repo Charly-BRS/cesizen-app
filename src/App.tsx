@@ -11,9 +11,6 @@ import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
-// Page d'accueil publique
-import AccueilPage from './pages/AccueilPage';
-
 // Pages publiques (accessibles sans connexion)
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
