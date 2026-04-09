@@ -4,7 +4,8 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getTousUtilisateurs, getTousExercices, getTousArticles } from '../../services/adminService';
+import { getTousUtilisateurs, getTousExercices } from '../../services/adminService';
+import { getArticles } from '../../services/articleService';
 import { getMesSessions } from '../../services/exerciseService';
 
 const AdminDashboardPage: React.FC = () => {
@@ -24,7 +25,7 @@ const AdminDashboardPage: React.FC = () => {
         const [utilisateurs, exercices, articles, sessions] = await Promise.all([
           getTousUtilisateurs(),
           getTousExercices(),
-          getTousArticles(),
+          getArticles(),
           getMesSessions(),
         ]);
         setStats({
