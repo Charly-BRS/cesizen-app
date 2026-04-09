@@ -3,7 +3,7 @@
 // Partage l'état de l'utilisateur connecté et le token JWT
 // à tous les composants enfants de l'application.
 
-import React, { createContext, useState, useContext, type ReactNode } from 'react';
+import React, { createContext, useState, type ReactNode } from 'react';
 
 // Type représentant un utilisateur authentifié
 interface Utilisateur {
@@ -15,7 +15,7 @@ interface Utilisateur {
 }
 
 // Type du contexte d'authentification
-interface AuthContextType {
+export interface AuthContextType {
   utilisateur: Utilisateur | null;
   token: string | null;
   connecter: (utilisateur: Utilisateur, token: string) => void;
@@ -91,16 +91,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-// Hook personnalisé pour utiliser le contexte d'auth facilement
-// Exemple d'utilisation : const { utilisateur, estConnecte } = useAuth();
-export const useAuth = (): AuthContextType => {
-  const contexte = useContext(AuthContext);
-
-  if (!contexte) {
-    throw new Error('useAuth doit être utilisé dans un AuthProvider');
-  }
-
-  return contexte;
-};
-
 export default AuthContext;
+
+// Re-export du hook depuis son propre fichier (Fast Refresh exige que les fichiers
+// de composants n'exportent que des composants — le hook est donc isolé dans useAuth.ts)
+// eslint-disable-next-line react-refresh/only-export-components
+export { useAuth } from './useAuth';

@@ -3,7 +3,7 @@
 // Les utilisateurs ROLE_REDACTEUR et ROLE_ADMIN peuvent créer des articles
 // via un bouton "+ Nouvel article" qui ouvre un formulaire modal.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getArticles, getCategories, creerArticle, modifierArticle } from '../services/articleService';
@@ -45,9 +45,7 @@ const ArticlesPage: React.FC = () => {
   const peutCreer = utilisateur?.roles.includes('ROLE_ADMIN')
                  || utilisateur?.roles.includes('ROLE_REDACTEUR');
 
-  useEffect(() => { charger(); }, []);
-
-  const charger = async () => {
+  const charger = useCallback(async () => {
     try {
       const [articlesData, categoriesData] = await Promise.all([
         getArticles(),
@@ -61,7 +59,10 @@ const ArticlesPage: React.FC = () => {
     } finally {
       setChargement(false);
     }
-  };
+  // peutCreer détermine si on appelle getCategories, donc c'est une dépendance
+  }, [peutCreer]);
+
+  useEffect(() => { charger(); }, [charger]);
 
   // Ouvre le modal en mode création
   const ouvrirCreation = () => {
