@@ -44,8 +44,10 @@ apiClient.interceptors.response.use(
       // que le composant doit gérer lui-même (afficher un message d'erreur).
       const urlAppel = error.config?.url ?? '';
       const estUnAppelAuth = urlAppel.includes('/auth/login')
+        || urlAppel.includes('/auth/register')
         || urlAppel.includes('/auth/forgot-password')
-        || urlAppel.includes('/auth/reset-with-token');
+        || urlAppel.includes('/auth/reset-with-token')
+        || urlAppel.includes('/auth/desactiver-compte');
 
       if (!estUnAppelAuth) {
         // Token expiré ou invalide sur une route protégée : déconnexion forcée
