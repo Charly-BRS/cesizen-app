@@ -1,7 +1,14 @@
 // src/pages/ResetPasswordPage.tsx
-// Page de réinitialisation du mot de passe avec le code reçu.
-// Accessible via /reset-password?email=...&token=... (pré-rempli depuis ForgotPasswordPage)
-// ou en saisissant manuellement l'email et le code.
+// Page de définition d'un nouveau mot de passe.
+//
+// Flux :
+//   1. L'utilisateur arrive ici depuis le lien reçu par email
+//      → /reset-password?token=abc123...
+//   2. Le token est lu depuis l'URL (query param "token")
+//   3. Si aucun token n'est présent, on affiche un message d'aide
+//   4. Sinon, on affiche le formulaire pour choisir un nouveau mot de passe
+//   5. On envoie POST /api/auth/reset-with-token { token, nouveauMotDePasse }
+//   6. En cas de succès, on redirige vers /login
 
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -11,9 +18,10 @@ const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Pré-remplit depuis les query params si l'utilisateur vient de ForgotPasswordPage
-  const [email, setEmail]           = useState(searchParams.get('email') ?? '');
-  const [token, setToken]           = useState(searchParams.get('token') ?? '');
+  // Récupère le token depuis l'URL (?token=...)
+  // Si absent, tokenUrl sera null → on affiche le message d'aide
+  const tokenUrl = searchParams.get('token');
+
   const [nouveauMdp, setNouveauMdp] = useState('');
   const [confirmMdp, setConfirmMdp] = useState('');
   const [mdpVisible, setMdpVisible] = useState(false);
@@ -22,33 +30,30 @@ const ResetPasswordPage: React.FC = () => {
   const [erreur, setErreur]         = useState('');
   const [succes, setSucces]         = useState('');
 
-  // Indicateur de force du mot de passe
+  // ── Indicateur de force du mot de passe ────────────────────────────────────
   const forceMotDePasse = (): { niveau: number; label: string; couleur: string } => {
     const mdp = nouveauMdp;
     if (mdp.length === 0) return { niveau: 0, label: '', couleur: '' };
-    if (mdp.length < 8)   return { niveau: 1, label: 'Trop court', couleur: 'bg-red-400' };
+    if (mdp.length < 8)   return { niveau: 1, label: 'Trop court',  couleur: 'bg-red-400'     };
     let score = 0;
-    if (mdp.length >= 10) score++;
-    if (/[A-Z]/.test(mdp)) score++;
-    if (/[0-9]/.test(mdp)) score++;
-    if (/[^A-Za-z0-9]/.test(mdp)) score++;
-    if (score <= 1) return { niveau: 2, label: 'Faible',    couleur: 'bg-orange-400' };
-    if (score === 2) return { niveau: 3, label: 'Correct',  couleur: 'bg-amber-400'  };
+    if (mdp.length >= 10)          score++;
+    if (/[A-Z]/.test(mdp))         score++;
+    if (/[0-9]/.test(mdp))         score++;
+    if (/[^A-Za-z0-9]/.test(mdp))  score++;
+    if (score <= 1) return { niveau: 2, label: 'Faible',    couleur: 'bg-orange-400'  };
+    if (score === 2) return { niveau: 3, label: 'Correct',  couleur: 'bg-amber-400'   };
     if (score === 3) return { niveau: 4, label: 'Fort',     couleur: 'bg-emerald-400' };
     return               { niveau: 4, label: 'Excellent', couleur: 'bg-emerald-500' };
   };
 
   const force = forceMotDePasse();
 
+  // ── Soumission du formulaire ───────────────────────────────────────────────
   const handleSoumission = async (e: FormEvent) => {
     e.preventDefault();
     setErreur('');
 
-    // Vérifications côté client
-    if (!email || !token) {
-      setErreur('L\'email et le code sont obligatoires.');
-      return;
-    }
+    // Vérifications côté client avant d'appeler l'API
     if (nouveauMdp.length < 8) {
       setErreur('Le mot de passe doit contenir au moins 8 caractères.');
       return;
@@ -61,18 +66,22 @@ const ResetPasswordPage: React.FC = () => {
     setChargement(true);
     try {
       // POST /api/auth/reset-with-token
+      // Le token identifie l'utilisateur — pas besoin de l'email
       await apiClient.post('/auth/reset-with-token', {
-        email,
-        token: token.toUpperCase(),
+        token:             tokenUrl,
         nouveauMotDePasse: nouveauMdp,
       });
+
       setSucces('Mot de passe réinitialisé avec succès !');
-      // Redirige vers le login après 2 secondes
+
+      // Redirige automatiquement vers la page de connexion après 2 secondes
       setTimeout(() => navigate('/login'), 2000);
+
     } catch (err: unknown) {
+      // Affiche le message d'erreur renvoyé par l'API si disponible
       if (err && typeof err === 'object' && 'response' in err) {
         const errAxios = err as { response: { data: { message?: string } } };
-        setErreur(errAxios.response.data.message ?? 'Code invalide ou expiré.');
+        setErreur(errAxios.response.data.message ?? 'Lien invalide ou expiré.');
       } else {
         setErreur('Impossible de contacter le serveur.');
       }
@@ -93,20 +102,51 @@ const ResetPasswordPage: React.FC = () => {
           <p className="text-slate-500 mt-2">Définir un nouveau mot de passe</p>
         </div>
 
-        {/* Succès */}
-        {succes && (
-          <div className="text-center">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">✅</div>
-            <p className="text-lg font-bold text-emerald-700">{succes}</p>
-            <p className="text-sm text-slate-500 mt-1">Redirection vers la connexion…</p>
+        {/* ── Cas 1 : aucun token dans l'URL ── */}
+        {!tokenUrl && (
+          <div className="flex flex-col gap-5">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-4 text-sm text-amber-800">
+              <p className="font-semibold mb-2">⚠️ Aucun lien de réinitialisation détecté</p>
+              <p>
+                Utilise le lien reçu par email pour accéder à cette page.
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+              <p className="text-sm font-semibold text-blue-800 mb-2">
+                📬 Comment faire ?
+              </p>
+              <p className="text-xs text-blue-700">
+                Fais une demande de réinitialisation, puis clique sur le lien reçu dans ta boîte mail.
+                Le lien est valable <strong>1 heure</strong>.
+              </p>
+            </div>
+
+            <Link
+              to="/forgot-password"
+              className="text-center bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 rounded-xl transition-colors text-sm"
+            >
+              Recevoir un email de réinitialisation
+            </Link>
           </div>
         )}
 
-        {/* Formulaire */}
-        {!succes && (
+        {/* ── Cas 2 : succès après soumission ── */}
+        {tokenUrl && succes && (
+          <div className="text-center flex flex-col gap-4">
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-3xl mx-auto">
+              ✅
+            </div>
+            <p className="text-lg font-bold text-emerald-700">{succes}</p>
+            <p className="text-sm text-slate-500">Redirection vers la connexion…</p>
+          </div>
+        )}
+
+        {/* ── Cas 3 : formulaire de choix du nouveau mot de passe ── */}
+        {tokenUrl && !succes && (
           <>
             <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-6 text-sm text-blue-700">
-              🔑 Saisis ton code de réinitialisation et choisis un nouveau mot de passe.
+              🔑 Choisis un nouveau mot de passe pour ton compte.
             </div>
 
             {erreur && (
@@ -116,34 +156,6 @@ const ResetPasswordPage: React.FC = () => {
             )}
 
             <form onSubmit={handleSoumission} className="flex flex-col gap-4">
-
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Adresse email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ton@email.fr"
-                  required
-                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-                />
-              </div>
-
-              {/* Code de réinitialisation */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Code de réinitialisation</label>
-                <input
-                  type="text"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value.toUpperCase())}
-                  placeholder="Ex: ABCD1234"
-                  required
-                  maxLength={8}
-                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-mono tracking-[0.2em] uppercase focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-                />
-                <p className="text-xs text-slate-400 mt-1">Le code contient 8 caractères. Il expire après 1 heure.</p>
-              </div>
 
               {/* Nouveau mot de passe */}
               <div>
@@ -167,12 +179,18 @@ const ResetPasswordPage: React.FC = () => {
                     {mdpVisible ? '🙈' : '👁️'}
                   </button>
                 </div>
-                {/* Barre de force */}
+
+                {/* Barre de force du mot de passe */}
                 {nouveauMdp.length > 0 && (
                   <div className="mt-2">
                     <div className="flex gap-1 mb-1">
                       {[1, 2, 3, 4].map((n) => (
-                        <div key={n} className={`h-1.5 flex-1 rounded-full transition-colors ${force.niveau >= n ? force.couleur : 'bg-slate-100'}`} />
+                        <div
+                          key={n}
+                          className={`h-1.5 flex-1 rounded-full transition-colors ${
+                            force.niveau >= n ? force.couleur : 'bg-slate-100'
+                          }`}
+                        />
                       ))}
                     </div>
                     <p className="text-xs text-slate-400">{force.label}</p>
@@ -180,9 +198,11 @@ const ResetPasswordPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Confirmation */}
+              {/* Confirmation du mot de passe */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Confirmer le mot de passe</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  Confirmer le mot de passe
+                </label>
                 <input
                   type={mdpVisible ? 'text' : 'password'}
                   value={confirmMdp}
@@ -205,7 +225,7 @@ const ResetPasswordPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Bouton */}
+              {/* Bouton de soumission */}
               <button
                 type="submit"
                 disabled={chargement || nouveauMdp !== confirmMdp || nouveauMdp.length < 8}
@@ -220,7 +240,7 @@ const ResetPasswordPage: React.FC = () => {
         {/* Liens bas de page */}
         <div className="flex justify-between mt-6">
           <Link to="/forgot-password" className="text-sm text-slate-400 hover:text-slate-600 transition-colors">
-            ← Nouveau code
+            ← Nouvelle demande
           </Link>
           <Link to="/login" className="text-sm text-green-700 hover:underline font-medium">
             Retour à la connexion
